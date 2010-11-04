@@ -66,6 +66,10 @@ After the 3rd host is added (at T=70), puppet will have expired
 'two.example.com' and 'three.example.com'
 
   % ./runashost.sh one.example.com 10.0.0.1
+  + export FACTER_fqdn=one.example.com
+  + export FACTER_ipaddress_eth0=10.0.0.1
+  + dbflags=--dbadapter sqlite3 --dblocation storeconfigs.sqlite
+  + puppet --certname one.example.com --node_name fqdn --verbose --dbadapter sqlite3 --dblocation storeconfigs.sqlite --storeconfigs --modulepath modules manifests/site.pp
   info: Connecting to sqlite3 database: /home/jls/projects/puppet-examples/exported-expiration/storeconfigs.sqlite
   info: Caching facts for one.example.com
   notice: Scope(Example::Exported::Expiringhost[one.example.com]): Exporting host: one.example.com => 10.0.0.1
@@ -74,6 +78,10 @@ After the 3rd host is added (at T=70), puppet will have expired
   info: Applying configuration version '1288853587'
 
   % ./runashost.sh two.example.com 10.0.0.2
+  + export FACTER_fqdn=two.example.com
+  + export FACTER_ipaddress_eth0=10.0.0.2
+  + dbflags=--dbadapter sqlite3 --dblocation storeconfigs.sqlite
+  + puppet --certname two.example.com --node_name fqdn --verbose --dbadapter sqlite3 --dblocation storeconfigs.sqlite --storeconfigs --modulepath modules manifests/site.pp
   info: Connecting to sqlite3 database: /home/jls/projects/puppet-examples/exported-expiration/storeconfigs.sqlite
   info: Caching facts for two.example.com
   notice: Scope(Example::Exported::Expiringhost[two.example.com]): Exporting host: two.example.com => 10.0.0.2
@@ -85,6 +93,10 @@ After the 3rd host is added (at T=70), puppet will have expired
   info: FileBucket adding /tmp/expiring-hosts-example-output as {md5}0cb3c66936c6ebfe7434a5979b3d6f34
 
   % ./runashost.sh three.example.com 10.0.0.3
+  + export FACTER_fqdn=three.example.com
+  + export FACTER_ipaddress_eth0=10.0.0.3
+  + dbflags=--dbadapter sqlite3 --dblocation storeconfigs.sqlite
+  + puppet --certname three.example.com --node_name fqdn --verbose --dbadapter sqlite3 --dblocation storeconfigs.sqlite --storeconfigs --modulepath modules manifests/site.pp
   info: Connecting to sqlite3 database: /home/jls/projects/puppet-examples/exported-expiration/storeconfigs.sqlite
   info: Caching facts for three.example.com
   notice: Scope(Example::Exported::Expiringhost[three.example.com]): Exporting host: three.example.com => 10.0.0.3
@@ -104,8 +116,13 @@ After the 3rd host is added (at T=70), puppet will have expired
   10.0.0.2        two.example.com
   10.0.0.3        three.example.com
 
-  # Now, a few minutes later, rerun 'three.example.com':
+  # Now, a few minutes later, rerun 'three.example.com' and the first two hosts
+  # (one.example.com, two.example.com) will have expired from age.
   % ./runashost.sh three.example.com 10.0.0.3
+  + export FACTER_fqdn=three.example.com
+  + export FACTER_ipaddress_eth0=10.0.0.3
+  + dbflags=--dbadapter sqlite3 --dblocation storeconfigs.sqlite
+  + puppet --certname three.example.com --node_name fqdn --verbose --dbadapter sqlite3 --dblocation storeconfigs.sqlite --storeconfigs --modulepath modules manifests/site.pp
   info: Connecting to sqlite3 database: /home/jls/projects/puppet-examples/exported-expiration/storeconfigs.sqlite
   notice: Scope(Example::Exported::Expiringhost[three.example.com]): Exporting host: three.example.com => 10.0.0.3
   notice: Scope(Example::Expiringhost[one.example.com]): Expiring resource [one.example.com] due to age > 60 (actual: 591.973301)
