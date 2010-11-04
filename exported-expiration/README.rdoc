@@ -1,20 +1,24 @@
 == Exported Resources that expire
 
-At present, it's not easy to remove exported resources from puppet's
+=== Why?
+
+When a host is removed from your infrastructure or otherwise ceases to function
+(intentionally) as a particular role, it's useful to notify the rest of 
+your infrastructure - your monitoring, for example. In a pure-puppet solution,
+you would do this using exported resources. One node could export the fact
+that it was an apache server and could inform nagios how to monitor it, and
+your nagios node(s) would import these resources and configure themselves
+to monitor appropriately.
+
+However, it's not simple to remove exported resources from puppet's
 storeconfig. Further, it's quite often that you want to not only remove the
 resource from the database but also from the hosts those resources were
-exported to, right?
+exported to, right? We want nagios to stop monitoring that server that was
+decommissioned.
 
-This gives an example of using an exported custom define with a timestamp
-attribute to signal 'expired' resources.
-
-For example, if you are exporting a nagios_host resource to your nagios server,
-and that host no longer exists, you want to automatically purge it from your
-nagios server config. Alternately, you could have a special attribute of your
-exported resource that signals expiration/deletion.
-
-This demo shows using timestamps as an expiration signal for an exported host
-resource.
+This demo gives an example of using an exported custom define with a timestamp
+attribute to signal 'expired' resources as a way of implementing such a
+solution.
 
 === How it works
 
