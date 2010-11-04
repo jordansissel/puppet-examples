@@ -21,11 +21,13 @@ resource.
 I only use exported custom defines. That is, I never directly export a file,
 host, nagios_service, or package. I always wrap them in custom defines and
 then export that. Why? Because this lets me change the implementation of what
-is exported without waiting for more puppet runs, and because I can add
-cool things like timestamps, etc.
+is exported without waiting for more puppet runs and because I can add cool
+things like timestamps or other attributes not normally available in whatever
+actual resource I am using.
 
-In this example, I wrap host with example::exported::expiringhost. That define
-(example::exported::expiringhost) wraps example::expiringhost and exports it.
+In this example, I wrap the 'host' resource with
+example::exported::expiringhost. That define (example::exported::expiringhost)
+wraps example::expiringhost and exports it. 
 
 This lets nodes simply do this:
   example::exported::expiringhost {
@@ -41,7 +43,14 @@ manifest itself) and lets you spoof the hostname and the ip address of the
 machine to puppet so you can easily test this with multiple 'hosts' from the
 same machine.
 
+Also, since I want this demo to be able to run as a normal user for testing and 
+standalone, I choose sqlite3 to put storeconfigs in and I use the 'host'
+resource's "target" attribute to point at /tmp/expiring-hosts-example-output
+
 === Example run
+
+As mentioned above, the 'hosts' file managed by this demo is:
+/tmp/expiring-hosts-example-output
 
 Operations: (T is time since start in seconds)
 * (T=0) Add a host 'one.example.com'
@@ -90,3 +99,33 @@ After the 3rd host is added (at T=70), puppet will have expired
   # HEADER: is definitely not recommended.
   10.0.0.2        two.example.com
   10.0.0.3        three.example.com
+
+  # Now, a few minutes later, rerun 'three.example.com':
+  % ./runashost.sh three.example.com 10.0.0.3
+  info: Connecting to sqlite3 database: /home/jls/projects/puppet-examples/exported-expiration/storeconfigs.sqlite
+  notice: Scope(Example::Exported::Expiringhost[three.example.com]): Exporting host: three.example.com => 10.0.0.3
+  notice: Scope(Example::Expiringhost[one.example.com]): Expiring resource [one.example.com] due to age > 60 (actual: 591.973301)
+  notice: Scope(Example::Expiringhost[two.example.com]): Expiring resource [two.example.com] due to age > 60 (actual: 570.424178)
+  notice: Scope(Example::Expiringhost[three.example.com]): Found recently-active [three.example.com] (age: 1.489464)
+  info: Caching catalog for three.example.com
+  info: Applying configuration version '1288854178'
+  notice: /Stage[main]//Node[default]/Example::Expiringhost[two.example.com]/Host[two.example.com]/ensure: removed
+  info: FileBucket adding /tmp/expiring-hosts-example-output as {md5}a65177536c8f9d89044e0fa2d8cedfd9
+
+Notice how puppet sees that 'one.example.com' and 'two.example.com' have
+timestamps that are older and as a result we consider them expired.
+
+=== Conclusion
+
+Using timestamps makes for a cool demo, but it may not be practical in
+production. Obviously, 60 seconds is way too short, but a reasonable age like
+an hour, or a day, or a week, could work for your infrastructure. However, what
+if your puppet deployment is broken or hosts just can't check in for some reason?
+
+To solve the above, you probably want to use something more explicit than
+'timestamp' as an expiry value. You could support an attribute 'expired' to
+flag deletion instead of computing age by timestamp. Setting 'expired' would
+be an external action perhaps by a central truth source or by a human - today,
+though, this would require manipulating the database backing the storeconfigs
+as there is no interface in puppet (yet) for manipulating exported resources
+outside of a puppet run.
