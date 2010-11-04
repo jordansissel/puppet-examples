@@ -34,17 +34,23 @@ This lets nodes simply do this:
 
 And that define will export @@example::expiringhost with a timestamp of now.
 
+=== About this demo
+
+The script 'runashost.sh' runs puppet in masterless mode (applies a puppet
+manifest itself) and lets you spoof the hostname and the ip address of the
+machine to puppet so you can easily test this with multiple 'hosts' from the
+same machine.
+
 === Example run
 
 Operations: (T is time since start in seconds)
-# (T=0) Add a host 'one.example.com'
-# (T=15) Add a host 'two.example.com'
-# (T=70) Add a host 'three.example.com'
+* (T=0) Add a host 'one.example.com'
+* (T=15) Add a host 'two.example.com'
+* (T=70) Add a host 'three.example.com'
 
 After the 3rd host is added (at T=70), puppet will have expired
 'one.example.com' for being too old and the hosts file will only contain
 'two.example.com' and 'three.example.com'
-
 
   % ./runashost.sh one.example.com 10.0.0.1
   info: Connecting to sqlite3 database: /home/jls/projects/puppet-examples/exported-expiration/storeconfigs.sqlite
