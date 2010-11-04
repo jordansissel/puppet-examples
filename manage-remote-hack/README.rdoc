@@ -1,0 +1,21 @@
+== Manage remote servers over ssh with puppet
+
+This hack shows how to trick puppet into managing packes on remote machines.
+
+This is cool because you can use it to manage servers that do not have puppet
+installed at all - it's all handled over ssh connections and remote command
+execution. You could use this, for example, to bootstrap a brand new server
+that has no puppet at all!
+
+=== How it works
+
+This ruby script overrides Puppet::Util::execute which is how puppet executes
+packager commands like apt-get, apt-cache, yum, rpm, gem, etc. I take the command
+and prefix it with 'ssh $host sudo' so it runs all the commands on the remote
+server.
+
+=== Limitations
+
+I only hack support for things that use external commands (like packager
+tools), so things like file resources won't work, though it shouldn't be too
+hard to hack that, too.
