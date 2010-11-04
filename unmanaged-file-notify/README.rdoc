@@ -2,7 +2,10 @@
 
 A common question in the #puppet irc channel on freenode is: "How can I have puppet notify a service when I manually update a file?"
 
-While I believe this "manual update" portion is an antipattern, in some cases (development server, whatever) it is desirable.
+While I believe this "manual update" portion is an antipattern, in some cases
+(development server, whatever) it is desirable, and frankly I don't know your
+infrastructure and I don't know all of your motives, so it's worth showing how
+this is done :)
 
 The code in this directory implements it. The gist of it is that you have
 puppet copy a local file and notify when that copy occurs.
