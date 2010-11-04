@@ -6,3 +6,24 @@ While I believe this "manual update" portion is an antipattern, in some cases (d
 
 The code in this directory implements it. The gist of it is that you have
 puppet copy a local file and notify when that copy occurs.
+
+=== Running it
+
+  # Start fresh:
+  % rm -f /tmp/flag /tmp/original
+
+  % echo "foo" > /tmp/original
+  % puppet apply unmanaged-notify.pp
+  notice: /Stage[main]//File[/tmp/flag]/ensure: defined content as '{md5}d3b07384d113edec49eaa6238ad5ff00'
+  notice: /Stage[main]//Exec[hello world]: Triggered 'refresh' from 1 events
+
+  # Run it again with no changes, no notify should happen:
+  % puppet apply unmanaged-notify.pp
+  <no output>
+
+  # Now change /tmp/original again
+  % echo "bar" > /tmp/original   
+  % puppet apply unmanaged-notify.pp
+  notice: /Stage[main]//File[/tmp/flag]/content: content changed '{md5}d3b07384d113edec49eaa6238ad5ff00' to '{md5}c157a79031e1c40f85931829bc5fc552'
+  notice: /Stage[main]//Exec[hello world]: Triggered 'refresh' from 1 events
+
