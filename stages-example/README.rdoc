@@ -1,0 +1,8 @@
+== Simple example using stages.
+
+Output:
+
+  notice: foo
+  notice: /Stage[one]/Foo/Notify[foo]/message: defined 'message' as 'foo'
+  notice: bar
+  notice: /Stage[two]/Bar/Notify[bar]/message: defined 'message' as 'bar'
