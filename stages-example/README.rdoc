@@ -1,7 +1,8 @@
 == Simple example using stages.
 
-Output:
+Running it:
 
+  % puppet apply stages-example.pp
   notice: foo
   notice: /Stage[one]/Foo/Notify[foo]/message: defined 'message' as 'foo'
   notice: bar
