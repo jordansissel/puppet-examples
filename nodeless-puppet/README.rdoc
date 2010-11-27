@@ -53,11 +53,17 @@ looks like this:
       include loadbalancer::remove
     }
   }
-In the above example, "has_role" is actually a custom parser function I wrote that checks a few facts to determine if a host has a given role. Implementing
-that function is out of scope for this example.
+In the above example, "has_role" is actually a custom parser function I wrote
+that checks a few facts to determine if a host has a given role. That function
+(has_role) is included in this example - see
+modules/truth/plugins/puppet/parser/functions/has_role.rb
 
 I believe putting business logic in puppet manifests is the best way to achieve
-turnup *and* turndown in your infrastructure.
+turnup *and* turndown in your infrastructure. Further, it concentrates the
+"configuration" in one place.
+
+You can specify truth elsewhere (what machines you have, what roles are on each
+machine, etc) - but keep the logic setup/teardown logic inside puppet.
 
 === Anticlass ?
 
