@@ -71,12 +71,14 @@ makes sure it's running, etc etc, and then an anticlass that uninstalls apache.
 
 Code example:
 
+  # Very simple class for installing apache
   class apache {
     package {
       "apache2": ensure => present;
     }
   }
 
+  # This is the 'anticlass' for apache
   class apache::remove {
     package {
       "apache2": ensure => absent;
