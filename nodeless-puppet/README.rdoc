@@ -4,7 +4,7 @@ You can run this example without any preconfigured puppet infrastructure. You
 only need puppet installed. It uses puppet's standalone feature ('puppet apply'
 in puppet >= 2.6.0.
 
-=== Why?
+=== Background
 
 Defining nodes using puppet's node syntax doesn't scale very well, and it may
 even duplicate data - You might have an asset or config database with the same
@@ -17,6 +17,8 @@ When I deployed an external node classifier, I ended up putting some business
 logic into the classifier script. For example, if the host had a role
 "loadbalancer" or "loadbalancer-dev" I wanted to include the class "haproxy",
 otherwise include "haproxy::disable".
+
+=== Why?
 
 The problem with this scenario is that if you break your node classifier
 (syntax error or other problems), your puppet infrastructure stops working. You
