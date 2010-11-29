@@ -18,8 +18,8 @@ h3. Practical
 
 h3. FAQ
 
-* unamanged-file-notify - FAQ: "How do I notify apache when I manually update a
-  config file?"
+* unamanged-file-notify - FAQ: "How do I notify a service (or other resource)
+  when I manually update a config file?"
 * stages-example - FAQ: "How do I use stages?" or "Stages aren't working for me"
 
 h3. Experimental
