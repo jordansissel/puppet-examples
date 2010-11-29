@@ -27,5 +27,3 @@ h3. Experimental
 * manage-remote-hack: Manage remote servers with puppet - this hack tricks puppet into doing
   package mangement over ssh, allowing you to manage remote servers that do not
   have puppet (or ruby) installed.
-
-* 
