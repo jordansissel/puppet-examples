@@ -1,0 +1,171 @@
+== Nodeless puppet
+
+You can run this example without any preconfigured puppet infrastructure. You
+only need puppet installed. It uses puppet's standalone feature ('puppet apply'
+in puppet >= 2.6.0.
+
+=== Background
+
+Defining nodes using puppet's node syntax doesn't scale very well, and it may
+even duplicate data - You might have an asset or config database with the same
+information. To try and solve that, puppet allows you to specify an external
+tool to service node information lookup called an external node classifier:
+
+External nodes docs: http://docs.puppetlabs.com/guides/external_nodes.html
+
+When I deployed an external node classifier, I ended up putting some business
+logic into the classifier script. For example, if the host had a role
+"loadbalancer" or "loadbalancer-dev" I wanted to include the class "haproxy",
+otherwise include "haproxy::disable".
+
+=== Why?
+
+The problem with this scenario is that if you break your node classifier
+(syntax error or other problems), your puppet infrastructure stops working. You
+can't even push a new classifier to your master with puppet - it's a fix
+that requires manual work to repair *or* non-puppet tools to automate the fix.
+
+I came up with as solution - use facts and properties only and put *all* of the
+logic inside puppet manifests.
+
+I believe the node classifier should not have any business logic in it. It should
+exist only to find a list of properties (and classes) for a given node, and ship
+them to puppet in YAML. Further, in this example, we would only have the node
+classifier report properties and one class, "truth::enforcer".
+
+This works awesomely for applying roles and for applying anticlasses (What's an
+anticlass? See the bottom of this doc)
+
+=== How it works
+
+I have a single 'node' definition in my site.pp:
+  
+  node default {
+    include truth::enforcer
+  }
+
+Then I have a module 'truth' that provides the truth::enforcer class, which
+looks like this:
+
+  class truth::enforcer {
+    if has_role("loadbalancer") {
+      include loadbalancer::service
+    } else {
+      # Otherwise, this machine is not a loadbalancer
+      include loadbalancer::remove
+    }
+  }
+In the above example, "has_role" is actually a custom parser function I wrote
+that checks a few facts to determine if a host has a given role. That function
+(has_role) is included in this example - see
+modules/truth/plugins/puppet/parser/functions/has_role.rb
+
+I believe putting business logic in puppet manifests is the best way to achieve
+turnup *and* turndown in your infrastructure. Further, it concentrates the
+"configuration" in one place.
+
+You can specify truth elsewhere (what machines you have, what roles are on each
+machine, etc) - but keep the logic setup/teardown logic inside puppet.
+
+=== Anticlass ?
+
+In puppet, a class applies some configuration. It's common to want to be able
+to reverse a class or in general, clean up and remove any changes you want.
+In discussions with fellow puppet users, the name 'anticlass' is often given to
+classes that exist to uninstall or clean up previous work.
+
+For example, you might have a class that installs apache, configures vhosts,
+makes sure it's running, etc etc, and then an anticlass that uninstalls apache.  
+
+Code example:
+
+  # Very simple class for installing apache
+  class apache {
+    package {
+      "apache2": ensure => present;
+    }
+  }
+
+  # This is the 'anticlass' for apache
+  class apache::remove {
+    package {
+      "apache2": ensure => absent;
+    }
+
+    file {
+      # Remove any leftover config files.
+      "/etc/apache2":
+        ensure => absent,
+        force => true;
+
+      # Remove any leftover apache logs.
+      "/var/log/apache2":
+        ensure => absent,
+        force => true;
+    }
+  }
+
+
+Now, in your truth::enforcer, you could have:
+
+  class truth::enforcer {
+    if has_role("frontend") {
+      include frontend   # presumably, includes 'apache'
+    }
+
+    if has_role("monitor") {
+      include nagios     # if your monitor is nagios, and wants apache!
+    }
+
+    if !has_role("frontend") and !has_role("monitor") {
+      include apache::remove
+    }
+  }
+
+=== Example Running
+
+Facter lets you pass facts using the environment. Any environment values
+beginning FACTER_ will turn in to facts. For example, FACTER_foo=hello will set
+$foo == "hello" in puppet and facter.
+
+For running, I start puppet from this directory (the nodeless-puppet
+directory). If you don't, you'll have to specify the full path to the 'modules'
+and 'manifests/site.pp' paths.
+
+  # Try a first run, with no server_tags and thus no roles:
+  % puppet --modulepath ./modules manifests/site.pp
+  notice: Scope(Class[Truth::Enforcer]): I am not a loadbalancer
+  notice: Scope(Class[Truth::Enforcer]): I am not a database
+  notice: Scope(Class[Truth::Enforcer]): I am a hadoop client
+  notice: Scope(Class[Truth::Enforcer]): I am not a hadoop-worker
+  notice: Scope(Class[Truth::Enforcer]): I am not a hadoop-master
+
+Our truth enforcer finds no active roles for this server, but because we have
+extra logic in our configuration - it would configure itself as a hadoop
+client.
+
+  # Try a second run. Be a load balancer:
+  % FACTER_server_tags="role:loadbalancer=true" puppet --modulepath ./modules manifests/site.pp
+  notice: Scope(Class[Truth::Enforcer]): I am a loadbalancer
+  notice: Scope(Class[Truth::Enforcer]): I am not a database
+  notice: Scope(Class[Truth::Enforcer]): I am a hadoop client
+  notice: Scope(Class[Truth::Enforcer]): I am not a hadoop-worker
+  notice: Scope(Class[Truth::Enforcer]): I am not a hadoop-master
+
+Now it knows it should configure itself as a loadbalancer. Easy. All fact-driven!
+
+How about testing the error condition in our config - We reject attempts to be
+both a "hadoop-master" and "hadoop-worker":
+  
+  % FACTER_server_tags="role:hadoop-master=true,role:hadoop-worker=true" puppet --modulepath ./modules manifests/site.pp
+  notice: Scope(Class[Truth::Enforcer]): I am not a loadbalancer
+  notice: Scope(Class[Truth::Enforcer]): I am not a database
+  Cannot be both hadoop-worker and hadoop-master. $server_tags is 'role:hadoop-master=true,role:hadoop-worker=true' at /home/jls/projects/puppet-examples/nodeless-puppet/./modules/truth/manifests/enforcer.pp:21 on node snack.home
+  % echo $?
+  1
+
+Puppet fails out and exits nonzero because we said the configuration attempted
+was invalid. Awesome!
+
+
+

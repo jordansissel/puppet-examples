@@ -1,0 +1,29 @@
+h1. Puppet Examples
+
+This project aims to document and demonstrate several uses of puppet.
+
+The main goal is to have a repository for me to publish any practical puppet
+patterns I find useful. I also will put some more esoteric and experimental
+tricks and hacks here. Lastly, I will try to put common "how to" answers that I
+find asked in the #puppet IRC channel (on freenode).
+
+h2. What do we have?
+
+h3. Practical
+
+* exported-expiration - an example of how to expire exported resources that
+  haven't checked in recently.
+* nodeless-puppet - a method for managing puppet nodes purely through facts and
+  properties. No 'node' definitions, no external node classifier, etc.
+
+h3. FAQ
+
+* unamanged-file-notify - FAQ: "How do I notify a service (or other resource)
+  when I manually update a config file?"
+* stages-example - FAQ: "How do I use stages?" or "Stages aren't working for me"
+
+h3. Experimental
+
+* manage-remote-hack: Manage remote servers with puppet - this hack tricks puppet into doing
+  package mangement over ssh, allowing you to manage remote servers that do not
+  have puppet (or ruby) installed.
