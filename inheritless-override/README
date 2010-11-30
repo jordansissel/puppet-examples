@@ -1,0 +1,7 @@
+% puppet apply example.pp
+notice: /Stage[main]/Foo/File[/tmp/hello]/ensure: defined content as '{md5}09421fa0d48df35164511391b40b2406'
+
+% cat /tmp/hello
+override!
+
+
