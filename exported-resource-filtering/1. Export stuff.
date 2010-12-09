@@ -1,0 +1,2 @@
+FACTER_fqdn=host1 puppet --certname host1 --node_name fqdn --storeconfigs --dblocation /tmp/puppet.sqlite -e '@@nagios_hostgroup { "mygroup": notes => "Hello"; }'
+FACTER_fqdn=host2 puppet --certname host2 --node_name fqdn --storeconfigs --dblocation /tmp/puppet.sqlite -e '@@nagios_hostgroup { "mygroup": notes => "Hello"; }' 

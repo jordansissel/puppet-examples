@@ -1,0 +1,5 @@
+ % puppet apply --verbose --storeconfig --dblocation /tmp/puppet.sqlite testpuppet.rb
+info: Connecting to sqlite3 database: /tmp/puppet.sqlite
+info: Caching catalog for snack.home
+info: Applying configuration version '1291931649'
+notice: /Stage[main]/Happy/Nagios_hostgroup[mygroup]/ensure: created
