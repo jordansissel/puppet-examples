@@ -22,3 +22,6 @@ Will be relative to --modulepath, in the above example, as:
   data (sqlite is local to each puppet node in masterless)
 * files can come from the local puppet, too. You just need to ship them to
   /etc/puppet/modules or wherever your moduledir is.
+
+I still use file resources just like I would with a master/agent configuration
+in puppet. puppet:/// urls, as mentioned, still work as expected :)
