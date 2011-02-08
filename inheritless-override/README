@@ -1,0 +1,17 @@
+Lots of folks have problems with class inheritance in puppet. Fundamentally, I think this is a symptom of a greater problem that:
+  * puppet classes are singletons in an OOP-sense
+  * inheritance behavior smells undefined if class b and c are included, and both inherit 'a'
+  * variable scoping in puppet is confusing
+  * most folks want 'include' when they say 'inherit'
+
+So, if you *really* want overrides, but can't stand inheritance, this example
+is a solution. It demonstrates one class (bar) including another (foo) and
+overriding a resource value from the included class.
+
+% puppet apply example.pp
+notice: /Stage[main]/Foo/File[/tmp/hello]/ensure: defined content as '{md5}09421fa0d48df35164511391b40b2406'
+
+% cat /tmp/hello
+override!
+
+
