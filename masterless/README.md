@@ -16,6 +16,11 @@ Will be relative to --modulepath, in the above example, as:
 
     ./modules/foo/files/bar.txt
 
+## Running it:
+
+    % sudo puppet apply --modulepath ./modules manifests/site.pp
+    notice: /Stage[main]/Os/File[/etc/motd]/ensure: defined content as '{md5}9f4ac4b9fdc3de446fe89b9374229950'
+
 ## Masterless Features
 
 * storeconfigs still works; requires MySQL if you want nodes to actually share
