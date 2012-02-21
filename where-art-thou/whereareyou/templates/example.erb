@@ -1,0 +1,10 @@
+<%=
+  scope.lookupvar("settings::modulepath").split(":").collect do |path|
+    expandedpath = File.expand_path(path)
+    if __FILE__.start_with?(expandedpath)
+      [path, __FILE__.gsub(expandedpath + "/", "")]
+    else
+      nil
+    end
+  end.select { |f| !f.nil? }.first
+%>
