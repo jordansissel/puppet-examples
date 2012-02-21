@@ -14,3 +14,9 @@ Output:
     notice: Scope(Class[Whereareyou]): [".", "whereareyou/templates/example.erb"]
 
 The output above is ["module path for this file", "file path relative to the modulepath"]
+
+Another example run with multiple module paths:
+
+    % puppet apply --modulepath /tmp:../where-art-thou  -e 'include whereareyou'
+    notice: Scope(Class[Whereareyou]): ["../where-art-thou", "whereareyou/templates/example.erb"]
+
