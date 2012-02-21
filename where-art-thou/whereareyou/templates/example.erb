@@ -1,10 +1,19 @@
 <%=
+  # Split modulepath by ":"
   scope.lookupvar("settings::modulepath").split(":").collect do |path|
+    # Fully resolve the path so things like '.' become full path names like
+    # /path/to/modules
     expandedpath = File.expand_path(path)
+
+    # Check if this file (this template file) is in the path being examined
     if __FILE__.start_with?(expandedpath)
+      # If it is, return the current module path (unexpanded, and the path
+      # in it relative to this template file
       [path, __FILE__.gsub(expandedpath + "/", "")]
     else
+      # Otherwise return nil
       nil
     end
+    # Then select the first non-nil entry
   end.select { |f| !f.nil? }.first
 %>
