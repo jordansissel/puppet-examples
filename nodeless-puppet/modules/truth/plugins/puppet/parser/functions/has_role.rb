@@ -18,9 +18,13 @@ module Puppet::Parser::Functions
       args = [args]
     end
     role = args[0]
-    roles = lookupvar("server_tags").split(",").grep(/^role:/)
-    roletag_re = /^role:#{role}(?:=.+)?$/
-    has_role = (roles.grep(roletag_re).length > 0)
-    return has_role
+    if lookupvar('server_tags') =~ /role:/
+      roles = lookupvar('server_tags').split(",").grep(/^role:/)
+      roletag_re = /^role:#{role}(?:=.+)?$/
+      has_role = (roles.grep(roletag_re).length > 0)
+      return has_role
+    else
+     false
+    end
   end # puppet function has_role
 end # module Puppet::Parser::Functions
